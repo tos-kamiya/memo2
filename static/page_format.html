@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script>
+function submitIt(url) {
+  var f = document.forms["form"];
+  f.method = "POST";
+  f.action = url;
+  f.submit();
+  return true;
+}
+</script>
+</head>
+<body>
+<form name="form">
+<div class="input-group pt-3 pb-3 px-3">
+  <input name="item" type="text" class="form-control col-sm-11" placeholder="text">
+  <span class="input-group-btn">
+    <button class="btn btn-default" onclick="return submitIt('/add');">Add</button>
+  </span>
+</div>
+<div class="input-group pb-3 px-3">
+  <input name="filter" type="text" class="form-control col-sm-4" placeholder="keyword">
+  <span class="input-group-btn mr-3">
+    <button class="btn btn-default"  onclick="return submitIt('/filter');">Filter</button>
+  </span>
+</div>
+</form>
+%s
+</body>
+</html>
