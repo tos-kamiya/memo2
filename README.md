@@ -16,3 +16,6 @@ Run the memo app server.
 python3 memo.py
 ```
 
+## Screenshots
+
+![](doc/screenshots/screenshot1.png)
