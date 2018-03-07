@@ -3,13 +3,10 @@ import os.path as path
 import os
 import sqlite3
 
-from flask import g
-
-
 DATABASE = path.join(path.expanduser('~'), '.memo.py', 'database.db')
 
 
-def get_db():
+def get_db(g):
     database_dir = path.split(DATABASE)[0]
     if not path.isdir(database_dir):
         os.makedirs(database_dir)
@@ -20,8 +17,8 @@ def get_db():
     return db
 
 
-def init_db():
-    cur = get_db().cursor()
+def init_db(g):
+    cur = get_db(g).cursor()
     cur.execute("DROP TABLE IF EXISTS memo;")
     cur.execute("CREATE TABLE memo(id INTEGER PRIMARY KEY, updated DATETIME, item TEXT);")
     cur.execute("INSERT INTO memo (updated, item) values(?, ?);", [datetime.now(), "--- database initialized ---"])

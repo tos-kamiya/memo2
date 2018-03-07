@@ -6,7 +6,14 @@ import urllib
 import bleach
 from flask import *
 
-from database import get_db, init_db
+import database
+
+
+def get_db():
+    return database.get_db(g)
+
+def init_db():
+    database.init_db(g)
 
 
 app = Flask(__name__)
@@ -28,7 +35,7 @@ def index_page():
     cur = get_db().cursor()
     cur.execute("SELECT id, updated, item FROM memo ORDER BY updated DESC;")
     lines = []
-    lines.extend(['<div class="px-3">', '<table class="table table-striped table-bordered">', '<tr><th>#</th><th>time</th><th>item</th></tr>'])
+    lines.extend(['<div class="px-3" id="items">', '<table class="table table-striped table-bordered">', '<tr><th>#</th><th>time</th><th>item</th></tr>'])
     for rid, rtime, rtext in cur.fetchall():
         if filter_text and filter_text not in rtext:
             continue  # for ri, rtime, rtext
