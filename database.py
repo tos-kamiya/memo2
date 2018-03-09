@@ -21,4 +21,5 @@ def init_db(g):
     cur = get_db(g).cursor()
     cur.execute("DROP TABLE IF EXISTS memo;")
     cur.execute("CREATE TABLE memo(id INTEGER PRIMARY KEY, updated DATETIME, item TEXT);")
-    cur.execute("INSERT INTO memo (updated, item) values(?, ?);", [datetime.now(), "--- database initialized ---"])
+    cur.execute("INSERT INTO memo (updated, item) values(?, ?);",
+        [datetime.now(), "** database cleared **"])

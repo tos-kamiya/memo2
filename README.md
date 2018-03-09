@@ -10,6 +10,8 @@ Create a database file.
 python3 memo.py init
 ```
 
+A database file `~/.memo.py/database.db` is generated with the above command.
+
 Run the memo app server.
 
 ```

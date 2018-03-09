@@ -1,79 +1,75 @@
 from datetime import datetime
 import os.path as path
+import re
 import sys
 import urllib
 
 import bleach
 from flask import *
 
-import database
-
-
-def get_db():
-    return database.get_db(g)
-
-def init_db():
-    database.init_db(g)
+from database import get_db, init_db
 
 
 app = Flask(__name__)
 
-
-with open(path.join(app.static_folder, "page_format.html"), 'r') as inp:
-    PAGE_FORMAT = inp.read()
+with open(path.join(app.static_folder, "index_page.html"), 'r') as inp:
+    INDEX_PAGE = inp.read()
 
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = get_db()
-    db.close()
+    get_db(g).close()
 
 
 @app.route("/")
 def index_page():
-    filter_text = request.args.get('filter_text', None)
-    cur = get_db().cursor()
+    cur = get_db(g).cursor()
     cur.execute("SELECT id, updated, item FROM memo ORDER BY updated DESC;")
-    lines = []
-    lines.extend(['<div class="px-3" id="items">', '<table class="table table-striped table-bordered">', '<tr><th>#</th><th>time</th><th>item</th></tr>'])
-    for rid, rtime, rtext in cur.fetchall():
-        if filter_text and filter_text not in rtext:
-            continue  # for ri, rtime, rtext
+    records = cur.fetchall()
 
-        # drop subsecond digits
-        i = rtime.find('.')
-        if i >= 0:
-            rtime = rtime[:i]
+    filter_text = request.args.get('filter_text', None)
+    if filter_text:
+        records = [r for r in records if filter_text in r[2]]
 
-        lines.append("<tr><th>%s</th><td>%s</td><td>%s</td></tr>" % (rid, rtime, rtext))
-    lines.extend(['</table>', '</div>'])
-    return PAGE_FORMAT % '\n'.join(lines)
+    buf = []
+    for rid, rt, item_text in records:
+        rt = re.sub('[.][0-9]+$', '', rt)  # drop subsec digits
+        buf.append("<tr><th>%s</th><td>%s</td><td>%s</td></tr>" % (rid, rt, item_text))
+    html = INDEX_PAGE % '\n'.join(buf)
+
+    return html
 
 
 @app.route("/add", methods=['POST'])
-def add_page():
+def add_request():
     item_text = request.form['item']
     item_text = bleach.clean(item_text.strip())
+
     if item_text:
-        cur = get_db().cursor()
-        cur.execute("INSERT INTO memo (updated, item) values(?, ?);", [datetime.now(), item_text])
+        sql = "INSERT INTO memo (updated, item) VALUES (?, ?);"
+        get_db(g).cursor().execute(sql, [datetime.now(), item_text])
+
     return redirect('/')
 
 
 @app.route("/filter", methods=['POST'])
-def filter_page():
+def filter_request():
     filter_text = request.form['filter']
+
     if filter_text:
-        return redirect('/?' + urllib.parse.urlencode({'filter_text': filter_text}))
-    return redirect('/')
+        param_str = '?' + urllib.parse.urlencode({'filter_text': filter_text})
+        return redirect('/' + param_str)
+    else:
+        return redirect('/')
 
 
 def main():
     argv = sys.argv[1:]
     if argv and argv[0] == 'init':
         with app.app_context():
-            init_db()
+            init_db(g)
         return
+
     app.run()
 
 

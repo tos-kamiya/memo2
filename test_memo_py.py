@@ -18,7 +18,7 @@ class MemoTestCase(unittest.TestCase):
     def setUp(self):
         self.db_fd, memo.DATABASE = tempfile.mkstemp()
         with memo.app.app_context():
-            memo.init_db()
+            memo.init_db(memo.g)
         memo.app.testing = True
         self.app = memo.app.test_client()
 
@@ -28,7 +28,7 @@ class MemoTestCase(unittest.TestCase):
 
     def test_no_entry(self):
         rv = self.app.get('/')
-        self.assertIn(b'database initialized', rv.data)
+        self.assertIn(b'database cleared', rv.data)
 
     def test_add_entries(self):
         rv = self.app.get('/')
