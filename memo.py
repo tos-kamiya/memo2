@@ -2,7 +2,7 @@ from datetime import datetime
 import os.path as path
 import re
 import sys
-import urllib
+from urllib.parse import urlencode
 
 import bleach
 from flask import *
@@ -11,9 +11,6 @@ from database import get_db, init_db
 
 
 app = Flask(__name__)
-
-with open(path.join(app.static_folder, "index_page.html"), 'r') as inp:
-    INDEX_PAGE = inp.read()
 
 
 @app.teardown_appcontext
@@ -31,13 +28,11 @@ def index_page():
     if filter_text:
         records = [r for r in records if filter_text in r[2]]
 
-    buf = []
+    rows = []
     for rid, rt, item_text in records:
         rt = re.sub('[.][0-9]+$', '', rt)  # drop subsec digits
-        buf.append("<tr><th>%s</th><td>%s</td><td>%s</td></tr>" % (rid, rt, item_text))
-    html = INDEX_PAGE % '\n'.join(buf)
-
-    return html
+        rows.append((rid, rt, item_text))
+    return render_template('index_page.html', filter_text=filter_text, rows=rows)
 
 
 @app.route("/add", methods=['POST'])
@@ -57,8 +52,7 @@ def filter_request():
     filter_text = request.form['filter']
 
     if filter_text:
-        param_str = '?' + urllib.parse.urlencode({'filter_text': filter_text})
-        return redirect('/' + param_str)
+        return redirect('/?' + urlencode({'filter_text': filter_text}))
     else:
         return redirect('/')
 
@@ -68,6 +62,7 @@ def main():
     if argv and argv[0] == 'init':
         with app.app_context():
             init_db(g)
+    else:
         return
 
     app.run()

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="/static/bootstrap.min.css" type="text/css">
+<script type="text/javascript" src="/static/functions.js"></script>
+</head>
+<body>
+<form name="form">
+<div class="input-group pt-3 pb-3 px-3">
+  <input name="item" type="text" class="form-control col-sm-11" placeholder="text">
+  <span class="input-group-btn">
+    <button class="btn btn-outline-primary" onclick="return submitIt('/add');">Add</button>
+  </span>
+</div>
+<div class="input-group pb-3 px-3">
+  <input name="filter" type="text" class="form-control col-sm-4" placeholder="keword"
+  {%- if filter_text -%}
+  value="{{ filter_text }}"
+  {%- endif -%}
+  >
+  <span class="input-group-btn mr-3" style="height:1em;">
+    <button
+    {% if filter_text -%}
+    class="btn btn-primary"
+    {%- else -%}
+    class="btn btn-outline-primary"
+    {%- endif %}
+    onclick="return submitIt('/filter');">Filter</button>
+    {%- if filter_text %}
+    <span class="align-bottom">
+      <span class="badge badge-primary">{{ rows|length }}</span> items found.
+    </span>
+    {% endif -%}
+  </span>
+</div>
+</form>
+<div class="px-3" id="items">
+  <table class="table table-sm table-striped table-bordered">
+    <tr class="table-primary"><th>#</th><th>time</th><th>item</th></tr>
+    {% for row in rows -%}
+    <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td><td>{{ row[2] }}</td></tr>
+    {%- endfor %}
+  </table>
+</div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# Memo.py, a flask+bootstrap+sqlite3 memo app.
+# Memo2, a flask+bootstrap+sqlite3 memo app.
 
 (A sample program in a paper. Not a practical app.)
 
